@@ -79,5 +79,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           title: 'Build Failed'
-          description: 'The build has failed.'
+          description: |
+            The build has failed.
+            View commit: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           color: 0xDC3545
