@@ -8,9 +8,6 @@ on:
     branches: [main]
     types: [opened, synchronize]
 
-env:
-  CONDITION: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip') }}
-
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
@@ -34,7 +31,7 @@ jobs:
           start: npm run start-prod
           wait-on: http://localhost:5000
       - name: Deploy to production
-        if: ${{ env.CONDITION }}
+        if: github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip')
         uses: johnbeynon/render-deploy-action@v0.0.8
         with:
           service-id: ${{ secrets.RENDER_SERVICE_ID }}
@@ -50,7 +47,7 @@ jobs:
         with:
           fetch-depth: '0'
       - name: Bump version and push tag
-        if: ${{ env.CONDITION }}
+        if: github.event_name == 'push' && !contains(github.event.head_commit.message, '#skip')
         uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
