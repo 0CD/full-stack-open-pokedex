@@ -56,3 +56,28 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
           WITH_V: false
           DEFAULT_BUMP: patch
+
+  discord_notification:
+    needs: [simple_deployment_pipeline, tag_release]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Deployment Success Notification
+        uses: sarisia/actions-status-discord@v1
+        if: |
+          success() && 
+          github.event_name == 'push' && 
+          !contains(github.event.head_commit.message, '#skip')
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: 'New version deployed successfully!'
+          description: 'A new version has been deployed to production'
+          color: 0x28A745
+
+      - name: Build Failure Notification
+        uses: sarisia/actions-status-discord@v1
+        if: failure()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: 'Build Failed'
+          description: 'The build has failed.'
+          color: 0xDC3545
